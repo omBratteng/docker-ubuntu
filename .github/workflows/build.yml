@@ -54,13 +54,14 @@ jobs:
           DIGEST: ${{ steps.build.outputs.digest }}
           TAGS: ${{ steps.meta.outputs.tags }}
         run: |
-          echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+          echo "${TAGS}" | xargs -I {} cosign sign --yes --tlog-upload=false {}@${DIGEST}
 
       - name: Verify signature
         env:
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           cosign verify \
+            --insecure-ignore-tlog \
             --certificate-identity-regexp "https://github.com/${{ github.repository }}/.*" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${DIGEST}
